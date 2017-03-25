@@ -1,5 +1,9 @@
 # Flickr Getter
 
+This program provides Flickr images and corresponding side information (e.g., tags and descriptions).
+You can filter out the tags which do not correspond to objects.
+Also you can set restrictions on length of the descriptions.
+
 ## Environment
 
 * OS: macOS Sierra
@@ -9,6 +13,7 @@
 ## Getting Started
 
 ```
+$ gem install bundler
 $ bundle install --path vendor/bundle
 ```
 
@@ -16,4 +21,7 @@ $ bundle install --path vendor/bundle
 
 ```
 $ cd source/
+$ bundle exec ruby scrape.rb
 ```
+
+Everything will be saved at `download` directory.
