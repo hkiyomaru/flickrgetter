@@ -2,14 +2,14 @@ require 'fileutils'
 require 'json'
 require 'open-uri'
 
-IMAGE_SAVE_DIR = '../download/images/'
-INFO_SAVE_DIR  = '../download/meta/'
+IMAGE_SAVE_DIR       = '../download/images/'
+INFO_SAVE_DIR        = '../download/meta/'
 IMAGENET_SYNSET_PATH = './imagenet_synsets'
 
 
 class FlickrGetter
   attr_accessor :num_of_images
-  def initialize(min_desc_len, max_desc_len, min_tags_num, filtering_tag=true)
+  def initialize(min_desc_len, max_desc_len, min_tags_num, filtering_tag)
     @num_of_images = 0
     @min_desc_len  = min_desc_len
     @max_desc_len  = max_desc_len
@@ -20,7 +20,7 @@ class FlickrGetter
     make_object_list
     # Create directory if it does not exist
     FileUtils.mkdir_p(IMAGE_SAVE_DIR) unless FileTest.exist? IMAGE_SAVE_DIR
-    FileUtils.mkdir_p(INFO_SAVE_DIR) unless FileTest.exist? INFO_SAVE_DIR
+    FileUtils.mkdir_p(INFO_SAVE_DIR)  unless FileTest.exist? INFO_SAVE_DIR
   end
 
   def run(images)
@@ -38,7 +38,6 @@ class FlickrGetter
         end
 
         puts "URL: " + url
-        puts tags.length
 
         # Save images and their side information
         if validate(desc, tags)
@@ -51,7 +50,7 @@ class FlickrGetter
             "desc"  => desc,
             "tags"  => tags,
           }
-          @meta_info.push _meta_info if download_image url
+          @meta_info.push _meta_info if download_image(url)
           @num_of_images += 1  # increment total number of images
         end
     end
