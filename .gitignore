@@ -1,0 +1,6 @@
+## API KEYS
+/config/secrets.yml
+
+## Environment normalization:
+/vendor/bundle
+/.bundle
