@@ -3,14 +3,22 @@ require 'yaml'
 
 require './utils.rb'
 
+
+# Flickr API
 CONFIG_PATH = '../config/secrets.yml'
 config_data = YAML.load_file CONFIG_PATH
 
 FlickRaw.api_key = config_data['key']
 FlickRaw.shared_secret = config_data['secret']
 
-images = flickr.photos.getRecent :per_page => 1
+images = flickr.photos.getRecent :per_page => 50
 meta_info = []
+ol = []
+
+File.open('imagenet_synsets') do |f|
+  synset = f.read
+  ol = make_object_list synset
+end
 
 images.each do |image|
     title     = image.title
@@ -22,11 +30,8 @@ images.each do |image|
     base_name = File.basename url
     tags      = Array(info.tags)
 
-    puts "title: "       + title
-    puts "URL: "         + url
-    puts "Owner: "       + owner
-    puts "Date: : "      + posted
-    puts "Description: " + desc
+    puts "title: " + title
+    puts "URL: "   + url
     puts ""
 
     _meta_info = {
@@ -39,8 +44,14 @@ images.each do |image|
       "tags"  => tags,
     }
 
+    # select tags correspond to objects
+    tags = tags & ol
+
     # Save images and their side information
-    meta_info.push _meta_info if download_image url
+    if validate desc, tags
+      meta_info.push _meta_info if download_image url
+    end
 end
 
+# Dump side information
 save_metainfo meta_info
