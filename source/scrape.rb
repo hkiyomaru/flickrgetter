@@ -13,6 +13,12 @@ FlickRaw.shared_secret = config_data['secret']
 
 images = flickr.photos.getRecent :per_page => 50
 meta_info = []
+ol = []
+
+File.open('imagenet_synsets') do |f|
+  synset = f.read
+  ol = make_object_list synset
+end
 
 images.each do |image|
     title     = image.title
@@ -37,6 +43,9 @@ images.each do |image|
       "desc"  => desc,
       "tags"  => tags,
     }
+
+    # select tags correspond to objects
+    tags = tags & ol
 
     # Save images and their side information
     if validate desc, tags
