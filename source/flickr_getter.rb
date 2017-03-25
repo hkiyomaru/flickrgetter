@@ -9,11 +9,12 @@ IMAGENET_SYNSET_PATH = './imagenet_synsets'
 
 class FlickrGetter
   attr_accessor :num_of_images
-  def initialize(min_desc_len=10, max_desc_len=140, min_tags_num=3)
+  def initialize(min_desc_len, max_desc_len, min_tags_num, filtering_tag=true)
     @num_of_images = 0
     @min_desc_len  = min_desc_len
     @max_desc_len  = max_desc_len
     @min_tags_num  = min_tags_num
+    @filtering_tag = filtering_tag
     @meta_info     = []
     # Make object list from ImageNet synsets
     make_object_list
@@ -31,9 +32,13 @@ class FlickrGetter
         posted    = Time.at(info.dates.posted.to_i).to_s
         url       = FlickRaw.url image
         base_name = File.basename(url)
-        tags      = Array(info.tags) & @obj_list  # select tags correspond to objects
+        tags      = Array(info.tags)
+        if @filtering_tag
+          tags = tags & @obj_list  # select tags correspond to objects
+        end
 
         puts "URL: " + url
+        puts tags.length
 
         # Save images and their side information
         if validate(desc, tags)
