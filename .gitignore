@@ -1,6 +1,9 @@
 ## API KEYS
 /config/secrets.yml
 
+## Downlaods
+/download
+
 ## Environment normalization:
 /vendor/bundle
 /.bundle
