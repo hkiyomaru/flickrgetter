@@ -2,15 +2,23 @@
 
 This program provides Flickr images and corresponding side information (e.g., tags and descriptions).
 You can filter out the tags which do not correspond to objects.
-Also you can set restrictions on length of the descriptions.
+Also you can place restrictions on length of the descriptions.
 
-## Environment
+## Development Environment
 
-* OS: macOS Sierra
-* Lang: Ruby 2.3.3
-* Lib: flickraw 0.9.9
+* OS       : macOS Sierra
+* Language : Ruby 2.3.3
+* Libraries: flickraw 0.9.9
 
 ## Getting Started
+
+First of all, you have to get an API key of Flickr.
+
+[The Flickr Developer Guide: API](https://www.flickr.com/services/developer/api/)
+
+Referring to config/secrets.yml.example, you can make Flickr API available by creating config/secrets.yml.
+
+Then, install dependent libraries.
 
 ```
 $ gem install bundler
@@ -25,3 +33,16 @@ $ bundle exec ruby scrape.rb
 ```
 
 Everything will be saved at `download` directory.
+
+## Customize
+
+```
+$ vim source/scrape.rb
+```
+
+* num_of_images (int): number of images you want to collect at least
+* per_page (int): number of images you'll get with one request
+* min_desc_len (int): minimum length of descriptions
+* max_desc_len (int): maximum length of descriptions
+* min_tags_num (int): minimum number of tags
+* filtering_tag (boolean): whether place a restriction on min_tags_num or not
