@@ -33,6 +33,7 @@ class FlickrGetter
         url       = FlickRaw.url image
         base_name = File.basename(url)
         tags      = Array(info.tags)
+        tags      = append_hash_tags(tags, desc)
         if @filtering_tag
           tags = tags & @obj_list  # select tags correspond to objects
         end
@@ -114,5 +115,15 @@ class FlickrGetter
       obj_list.reject(&:empty?)
       @obj_list = obj_list
     end
+  end
+
+  def append_hash_tags(tags, desc)
+    _hash_tags = desc.scan(%r|\s?(#[^\s　]+)\s?|).flatten  # extract hash tags
+    if _hash_tags.length > 0
+      _hash_tags.map { |tag| tag.slice!(0)}  # remove #
+    end
+    tags = tags + _hash_tags
+    tags.uniq
+    return tags
   end
 end
