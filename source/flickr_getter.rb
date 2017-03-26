@@ -2,6 +2,9 @@ require 'fileutils'
 require 'json'
 require 'open-uri'
 
+require './utils.rb'
+
+
 IMAGE_SAVE_DIR       = '../download/images/'
 INFO_SAVE_DIR        = '../download/meta/'
 IMAGENET_SYNSET_PATH = './imagenet_synsets'
@@ -17,7 +20,7 @@ class FlickrGetter
     @filtering_tag = filtering_tag
     @meta_info     = []
     # Make object list from ImageNet synsets
-    make_object_list
+    @obj_list = make_object_list(IMAGENET_SYNSET_PATH)
     # Create directory if it does not exist
     FileUtils.mkdir_p(IMAGE_SAVE_DIR) unless FileTest.exist? IMAGE_SAVE_DIR
     FileUtils.mkdir_p(INFO_SAVE_DIR)  unless FileTest.exist? INFO_SAVE_DIR
@@ -58,6 +61,7 @@ class FlickrGetter
   end
 
   def validate(desc, tags)
+    return true
     # Reject images with too short descriptions or too long descriptions
     if desc.length < @min_desc_len || desc.length > @max_desc_len
       return false
@@ -74,8 +78,6 @@ class FlickrGetter
     file_name = File.basename(url)
     save_dir = IMAGE_SAVE_DIR
     file_path = save_dir + file_name
-
-    # Save downloaded image
     begin
       open(file_path, 'wb') do |f|
         open(url) do |d|
@@ -85,45 +87,19 @@ class FlickrGetter
     rescue
       return false # Failure
     end
-
     return true # Success
   end
 
-  def save_metainfo
+  def terminate
     save_dir = INFO_SAVE_DIR
     file_path = save_dir + 'metainfo.json'
-
-    # Save downloaded image
     begin
       File.open(file_path, 'w') do |f|
         f.write(@meta_info.to_json)
       end
     rescue
-      return false # Failure
+      return false  # Failure
     end
-
-    return true # Success
-  end
-
-  def make_object_list
-    File.open(IMAGENET_SYNSET_PATH) do |f|
-      synset = f.read
-      synset.gsub!(/, | /, "\n")  # split comma-separated values
-      synset.downcase!  # downcase every character
-      obj_list = synset.split("\n")  # make object list
-      obj_list.uniq
-      obj_list.reject(&:empty?)
-      @obj_list = obj_list
-    end
-  end
-
-  def append_hash_tags(tags, desc)
-    _hash_tags = desc.scan(%r|\s?(#[^\s　]+)\s?|).flatten  # extract hash tags
-    if _hash_tags.length > 0
-      _hash_tags.map { |tag| tag.slice!(0)}  # remove #
-    end
-    tags = tags + _hash_tags
-    tags.uniq
-    return tags
+    return true  # Success
   end
 end
