@@ -2,10 +2,10 @@ def make_object_list(synset_path)
   obj_list = []
   File.open(synset_path) do |f|
     synsets = f.read
-    synsets.gsub!(/, /, "\n")  # split with comma
     synsets.downcase!
+    synsets.gsub!(/, /, "\n")  # split with comma
     synsets = synsets.split("\n")
-    for synset in synsets
+    synsets.each do |synset|
       if synset.include?(" ")
         synset = synset.split(" ")
         obj_list.push(synset[-1])       # add noun

@@ -45,4 +45,3 @@ $ vim source/scrape.rb
 * min_desc_len (int): minimum length of descriptions
 * max_desc_len (int): maximum length of descriptions
 * min_tags_num (int): minimum number of tags
-* filtering_tag (boolean): whether place a restriction on min_tags_num or not
