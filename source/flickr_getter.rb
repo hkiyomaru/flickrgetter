@@ -30,7 +30,11 @@ class FlickrGetter
         image_id  = image.id
         secret    = image.secret
         title     = image.title
-        info      = flickr.photos.getInfo(:photo_id => image_id, :secret => secret)
+        begin
+          info = flickr.photos.getInfo(:photo_id => image_id, :secret => secret)
+        rescue
+          next
+        end
         desc      = info.description
         owner     = info.owner.username
         posted    = Time.at(info.dates.posted.to_i).to_s
