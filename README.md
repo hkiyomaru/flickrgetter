@@ -8,7 +8,7 @@ Also you can place restrictions on length of the descriptions.
 
 * OS       : macOS Sierra
 * Language : Ruby 2.3.3
-* Libraries: flickraw 0.9.9
+* Libraries: flickraw 0.9.9, pry 0.10.4, pry-doc 0.10.0
 
 ## Getting Started
 
