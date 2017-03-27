@@ -1,11 +1,22 @@
 def make_object_list(synset_path)
+  obj_list = []
   File.open(synset_path) do |f|
-    synset = f.read
-    synset.gsub!(/, | /, "\n")  # split comma-separated values
-    synset.downcase!  # downcase every character
-    obj_list = synset.split("\n")  # make object list
-    obj_list.uniq
-    obj_list.reject(&:empty?)
+    synsets = f.read
+    synsets.gsub!(/, /, "\n")  # split with comma
+    synsets.downcase!
+    synsets = synsets.split("\n")
+    for synset in synsets
+      if synset.include?(" ")
+        synset = synset.split(" ")
+        obj_list.push(synset[-1])       # add noun
+        obj_list.push(synset.join(""))  # add adjective + noun with no space
+      else
+        obj_list.push(synset)           # add noun
+      end
+    end
+    # clean up object list
+    obj_list.uniq!
+    obj_list.reject!(&:empty?)
     return obj_list
   end
 end
@@ -16,6 +27,6 @@ def append_hash_tags(tags, desc)
     _hash_tags.map { |tag| tag.slice!(0)}  # remove #
   end
   tags = tags + _hash_tags
-  tags.uniq
+  tags.uniq!
   return tags
 end
