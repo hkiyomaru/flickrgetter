@@ -1,6 +1,7 @@
 require 'fileutils'
 require 'json'
 require 'open-uri'
+require 'pry'
 
 require './utils.rb'
 
@@ -57,6 +58,7 @@ class FlickrGetter
           }
           @meta_info.store(image_id, _meta_info) if download_image?(url)
           @num_of_images += 1  # increment total number of images
+          puts '#Progress: ' + @num_of_images
         end
     end
   end
@@ -98,7 +100,8 @@ class FlickrGetter
         f.write(@meta_info.to_json)
       end
     rescue
-      return false  # Failure
+      binding.pry   # Enter debug mode
+      return false
     end
     return true  # Success
   end
