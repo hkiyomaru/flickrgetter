@@ -1,6 +1,7 @@
 require 'fileutils'
 require 'json'
 require 'open-uri'
+require 'pry'
 
 require './utils.rb'
 
@@ -18,7 +19,7 @@ class FlickrGetter
     @max_desc_len  = max_desc_len
     @min_tags_num  = min_tags_num
     @filtering_tag = filtering_tag
-    @meta_info     = []
+    @meta_info     = {}
     # Make object list from ImageNet synsets
     @obj_list = make_object_list(IMAGENET_SYNSET_PATH)
     # Create directory if it does not exist
@@ -28,8 +29,10 @@ class FlickrGetter
 
   def run(images)
     images.each do |image|
+        image_id  = image.id
+        secret    = image.secret
         title     = image.title
-        info      = flickr.photos.getInfo(:photo_id => image.id, :secret => image.secret)
+        info      = flickr.photos.getInfo(:photo_id => image_id, :secret => secret)
         desc      = info.description
         owner     = info.owner.username
         posted    = Time.at(info.dates.posted.to_i).to_s
@@ -41,27 +44,26 @@ class FlickrGetter
           tags = tags & @obj_list  # select tags correspond to objects
         end
 
-        puts "URL: " + url
-
         # Save images and their side information
-        if validate(desc, tags)
+        if eligible?(desc, tags)
           _meta_info = {
-            "url"   => url,
-            "file"  => base_name,
-            "owner" => owner,
-            "date"  => posted,
-            "title" => title,
-            "desc"  => desc,
-            "tags"  => tags,
+            "secret" => secret,
+            "url"    => url,
+            "file"   => base_name,
+            "owner"  => owner,
+            "date"   => posted,
+            "title"  => title,
+            "desc"   => desc,
+            "tags"   => tags,
           }
-          @meta_info.push _meta_info if download_image(url)
+          @meta_info.store(image_id, _meta_info) if download_image?(url)
           @num_of_images += 1  # increment total number of images
+          puts '#Progress: ' + @num_of_images
         end
     end
   end
 
-  def validate(desc, tags)
-    return true
+  def eligible?(desc, tags)
     # Reject images with too short descriptions or too long descriptions
     if desc.length < @min_desc_len || desc.length > @max_desc_len
       return false
@@ -74,7 +76,7 @@ class FlickrGetter
     return true
   end
 
-  def download_image(url)
+  def download_image?(url)
     file_name = File.basename(url)
     save_dir = IMAGE_SAVE_DIR
     file_path = save_dir + file_name
@@ -90,7 +92,7 @@ class FlickrGetter
     return true # Success
   end
 
-  def terminate
+  def terminate?
     save_dir = INFO_SAVE_DIR
     file_path = save_dir + 'metainfo.json'
     begin
@@ -98,7 +100,8 @@ class FlickrGetter
         f.write(@meta_info.to_json)
       end
     rescue
-      return false  # Failure
+      binding.pry   # Enter debug mode
+      return false
     end
     return true  # Success
   end
