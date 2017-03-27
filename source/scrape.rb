@@ -5,8 +5,8 @@ require './flickr_getter.rb'
 
 
 # Settings for collecting Flickr images
-num_of_images = 10  # number of images you want to collect
-per_page      = 10  # 100 - 500
+num_of_images = 10
+per_page      = 10
 min_desc_len  = 10
 max_desc_len  = 140
 min_tags_num  = 3
@@ -24,4 +24,9 @@ while runner.num_of_images < num_of_images
   images = flickr.photos.getRecent(:per_page => per_page)
   runner.run(images)
 end
-runner.terminate
+
+if runner.terminate?
+  puts 'Success.'
+else
+  puts 'Failure.'
+end
