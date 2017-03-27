@@ -58,7 +58,7 @@ class FlickrGetter
           }
           @meta_info.store(image_id, _meta_info) if download_image?(url)
           @num_of_images += 1  # increment total number of images
-          puts '#Progress: ' + @num_of_images
+          puts "#Progress: " + @num_of_images.to_s
         end
     end
   end
