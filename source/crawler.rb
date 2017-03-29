@@ -11,7 +11,6 @@ require 'yaml'
 class Crawler
   def initialize(num_of_images_per_class, min_desc_len, max_desc_len, min_tags_num)
     @num_of_images_per_class = num_of_images_per_class
-    @per_page = [@num_of_images_per_class, 500].min
     @min_desc_len = min_desc_len
     @max_desc_len = max_desc_len
     @min_tags_num = min_tags_num
@@ -24,23 +23,23 @@ class Crawler
   end
 
   def run
-    @obj_lists.each do |obj_list|
-      num_of_images_per_class = 0
+    @obj_lists.each_with_index do |obj_list, index|
+      accept = 0
       last_update = nil
-      while num_of_images_per_class < @num_of_images_per_class
+      while accept < @num_of_images_per_class
         images = flickr.photos.search(
                   :tags            => obj_list,
-                  :per_page        => @per_page,
-                  :max_upload_date => last_update
+                  :max_upload_date => last_update,
+                  :per_page        => 500,
                  )
-        accept, last_update = inspect(images)
-        num_of_images_per_class += accept
+        accept, last_update = inspect(images, accept)
+        report_progress(accept, index)
       end
     end
     puts 'Everything went well.' if done?
   end
 
-  def inspect(images)
+  def inspect(images, accept)
     accept = 0  # number of saved images
     last_update = nil
     images.each do |image|
@@ -75,6 +74,8 @@ class Crawler
         if download_image?(url)
           @meta_info.store(image_id, _meta_info)
           accept += 1
+          puts 'Download -> ' + url
+          break if accept == @num_of_images_per_class
         end
       end
       # Update `last_update` value
@@ -88,7 +89,6 @@ class Crawler
   end
 
   def eligible?(desc, tags)
-    puts tags.length
     # Reject images with too short descriptions or too long descriptions
     if desc.length < @min_desc_len || desc.length > @max_desc_len
       return false
@@ -147,5 +147,10 @@ class Crawler
     end
     obj_mask = obj_lists.flatten
     return obj_lists, obj_mask
+  end
+
+  def report_progress(accept, index)
+    puts 'Target query   : ' + (index + 1).to_s + ' / ' + @obj_lists.length.to_s
+    puts 'Target Progress: ' + accept.to_s + ' / ' + @num_of_images_per_class.to_s
   end
 end

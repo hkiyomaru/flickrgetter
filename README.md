@@ -34,11 +34,7 @@ $ bundle exec ruby scrape.rb
 
 Everything will be saved at `download` directory.
 
-## Customize
-
-```
-$ vim source/scrape.rb
-```
+## Change restrictions
 
 * num_of_images (int): number of images you want to collect at least
 * per_page (int): number of images you'll get with one request

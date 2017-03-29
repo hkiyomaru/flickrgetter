@@ -7,13 +7,13 @@ IMAGE_SAVE_DIR       = '../download/images/'
 INFO_SAVE_DIR        = '../download/meta/'
 IMAGENET_SYNSET_PATH = './imagenet_synsets'
 
-# Settings for collecting Flickr images
+# Restrinctions for collecting Flickr images
 num_of_images_per_class = 10
 min_desc_len = 10
 max_desc_len = 140
 min_tags_num = 3
 
-# Flickr API
+# Flickr API Configuration
 CONFIG_PATH = '../config/secrets.yml'
 config_data = YAML.load_file(CONFIG_PATH)
 FlickRaw.api_key = config_data['key']
