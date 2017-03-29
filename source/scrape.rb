@@ -1,31 +1,23 @@
-require 'flickraw'
-require 'yaml'
+# Crawler program to collect Flickr images and their side information
+require './crawler.rb'
 
-require './flickr_getter.rb'
 
+# Paths
+IMAGE_SAVE_DIR       = '../download/images/'
+INFO_SAVE_DIR        = '../download/meta/'
+IMAGENET_SYNSET_PATH = './imagenet_synsets'
 
 # Settings for collecting Flickr images
-num_of_images = 10
-per_page      = 10
-min_desc_len  = 10
-max_desc_len  = 140
-min_tags_num  = 3
+num_of_images_per_class = 10
+min_desc_len = 10
+max_desc_len = 140
 
 # Flickr API
 CONFIG_PATH = '../config/secrets.yml'
 config_data = YAML.load_file(CONFIG_PATH)
-FlickRaw.api_key       = config_data['key']
+FlickRaw.api_key = config_data['key']
 FlickRaw.shared_secret = config_data['secret']
 
 # Scrape Flickr images and their side information
-runner = FlickrGetter.new(min_desc_len, max_desc_len, min_tags_num)
-while runner.num_of_images < num_of_images
-  images = flickr.photos.getRecent(:per_page => per_page)
-  runner.run(images)
-end
-
-if runner.terminate?
-  puts 'Success.'
-else
-  puts 'Failure.'
-end
+runner = Crawler.new(num_of_images_per_class, min_desc_len, max_desc_len)
+runner.run
