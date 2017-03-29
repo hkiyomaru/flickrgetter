@@ -11,6 +11,7 @@ IMAGENET_SYNSET_PATH = './imagenet_synsets'
 num_of_images_per_class = 10
 min_desc_len = 10
 max_desc_len = 140
+min_tags_num = 3
 
 # Flickr API
 CONFIG_PATH = '../config/secrets.yml'
@@ -19,5 +20,10 @@ FlickRaw.api_key = config_data['key']
 FlickRaw.shared_secret = config_data['secret']
 
 # Scrape Flickr images and their side information
-runner = Crawler.new(num_of_images_per_class, min_desc_len, max_desc_len)
+runner = Crawler.new(
+           num_of_images_per_class,
+           min_desc_len,
+           max_desc_len,
+           min_tags_num
+         )
 runner.run
