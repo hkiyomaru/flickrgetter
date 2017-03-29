@@ -7,7 +7,6 @@ require 'open-uri'
 require 'pry'
 require 'yaml'
 
-
 class Crawler
   def initialize(num_of_images_per_class, min_desc_len, max_desc_len, min_tags_num)
     @num_of_images_per_class = num_of_images_per_class
