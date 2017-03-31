@@ -4,6 +4,9 @@
 ## Downlaods
 /download
 
+## Log files
+/log
+
 ## Environment normalization:
 /vendor/bundle
 /.bundle

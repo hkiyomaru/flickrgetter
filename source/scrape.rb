@@ -2,12 +2,14 @@
 require './crawler.rb'
 
 # Paths
-IMAGE_SAVE_DIR       = '../download/images/'
-INFO_SAVE_DIR        = '../download/meta/'
+IMAGE_SAVE_DIR = '../download/images/'
+INFO_SAVE_DIR = '../download/meta/'
 IMAGENET_SYNSET_PATH = './imagenet_synsets'
+LOG_DIR = '../log/'
+LOG_FILE_PATH = '../log/crawler.log'
 
 # Restrinctions for collecting Flickr images
-num_of_images_per_class = 50
+num_of_images_per_class = 10
 min_desc_len = 10
 max_desc_len = 140
 min_tags_num = 3
