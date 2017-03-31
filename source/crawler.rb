@@ -23,6 +23,9 @@ class Crawler
     @meta_info = {}
     # logger which writes log output to STDOUT as well as file
     @log = Logger.new("| tee -a #{LOG_FILE_PATH}")
+    # progress
+    @progress = 0
+    @total = @obj_lists.length * @num_of_images_per_class
   end
 
   def run
@@ -32,21 +35,25 @@ class Crawler
       while accept < @num_of_images_per_class
         begin
           images = flickr.photos.search(
-                    :tags            => obj_list,
+                    :tags => obj_list,
                     :max_upload_date => last_update,
-                    :per_page        => 500,
+                    :per_page => 500,
                    )
         rescue
           @log.error('Failed to open TCP connection to Flickr API.')
           sleep(300)
           next
         end
-        if images.length > 0
-          accept, last_update = inspect(images, accept)
-          report_progress(accept, index)
-        else
-          @log.info("There are no unsearched images anymore about #{obj_list.join(', ')}.")
+        _accept, _last_update = inspect(images)
+        if _last_update == last_update
+          @log.info("There are no unsearched images about #{obj_list.join(', ')} anymore.")
+          @total -= (@num_of_images_per_class - accept)
           break
+        else
+          @progress += _accept
+          accept += _accept
+          last_update = _last_update
+          report_progress
         end
       end
     end
@@ -55,7 +62,8 @@ class Crawler
     end
   end
 
-  def inspect(images, accept)
+  def inspect(images)
+    accept = 0
     last_update = nil
     images.each do |image|
       # Get information
@@ -167,9 +175,7 @@ class Crawler
     return obj_lists, obj_mask
   end
 
-  def report_progress(accept, index)
-    progress = index * @num_of_images_per_class + accept
-    total = @obj_lists.length * @num_of_images_per_class
-    @log.info('Progress: ' + progress.to_s + ' / ' + total.to_s)
+  def report_progress
+    @log.info('Progress: ' + @progress.to_s + ' / ' + @total.to_s)
   end
 end
