@@ -34,15 +34,20 @@ class Crawler
           images = flickr.photos.search(
                     :tags            => obj_list,
                     :max_upload_date => last_update,
-                    :per_page        => 100,
+                    :per_page        => 500,
                    )
         rescue
           @log.error('Failed to open TCP connection to Flickr API.')
           sleep(300)
           next
         end
-        accept, last_update = inspect(images, accept)
-        report_progress(accept, index)
+        if images.length > 0
+          accept, last_update = inspect(images, accept)
+          report_progress(accept, index)
+        else
+          @log.info("There are no unsearched images anymore about #{obj_list.join(', ')}.")
+          break
+        end
       end
     end
     if done?
