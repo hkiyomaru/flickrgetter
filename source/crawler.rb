@@ -3,6 +3,7 @@ require 'date'
 require 'fileutils'
 require 'flickraw'
 require 'json'
+require 'logger'
 require 'open-uri'
 require 'pry'
 require 'yaml'
@@ -16,9 +17,12 @@ class Crawler
     @obj_lists, @obj_mask = make_object_lists(IMAGENET_SYNSET_PATH)
     # Create directory if it does not exist
     FileUtils.mkdir_p(IMAGE_SAVE_DIR) unless FileTest.exist?(IMAGE_SAVE_DIR)
-    FileUtils.mkdir_p(INFO_SAVE_DIR)  unless FileTest.exist?(INFO_SAVE_DIR)
+    FileUtils.mkdir_p(INFO_SAVE_DIR) unless FileTest.exist?(INFO_SAVE_DIR)
+    FileUtils.mkdir_p(LOG_DIR) unless FileTest.exist?(LOG_DIR)
     # hash for saving meta data
     @meta_info = {}
+    # logger which writes log output to STDOUT as well as file
+    @log = Logger.new("| tee -a #{LOG_FILE_PATH}")
   end
 
   def run
@@ -26,20 +30,27 @@ class Crawler
       accept = 0
       last_update = nil
       while accept < @num_of_images_per_class
-        images = flickr.photos.search(
-                  :tags            => obj_list,
-                  :max_upload_date => last_update,
-                  :per_page        => 500,
-                 )
+        begin
+          images = flickr.photos.search(
+                    :tags            => obj_list,
+                    :max_upload_date => last_update,
+                    :per_page        => 100,
+                   )
+        rescue
+          @log.error('Failed to open TCP connection to Flickr API.')
+          sleep(300)
+          next
+        end
         accept, last_update = inspect(images, accept)
         report_progress(accept, index)
       end
     end
-    puts 'Everything went well.' if done?
+    if done?
+      @log.info('Done.')
+    end
   end
 
   def inspect(images, accept)
-    accept = 0  # number of saved images
     last_update = nil
     images.each do |image|
       # Get information
@@ -48,6 +59,7 @@ class Crawler
       begin
         info = flickr.photos.getInfo(:photo_id => image_id, :secret => secret)
       rescue
+        @log.error('Failed to get information of a image.')
         next
       end
       title = image.title
@@ -73,7 +85,7 @@ class Crawler
         if download_image?(url)
           @meta_info.store(image_id, _meta_info)
           accept += 1
-          puts 'Download -> ' + url
+          @log.info('Downloaded ' + url)
           break if accept == @num_of_images_per_class
         end
       end
@@ -110,6 +122,7 @@ class Crawler
         end
       end
     rescue
+      @log.error('Failed to download and save a image.')
       return false
     end
     return true
@@ -123,7 +136,8 @@ class Crawler
         f.write(@meta_info.to_json)
       end
     rescue
-      binding.pry   # Enter debug mode
+      @log.error('Failed to save meta data. Enter debug mode.')
+      binding.pry   # Debug mode
       return false
     end
     return true
@@ -149,7 +163,8 @@ class Crawler
   end
 
   def report_progress(accept, index)
-    puts 'Target query   : ' + (index + 1).to_s + ' / ' + @obj_lists.length.to_s
-    puts 'Target Progress: ' + accept.to_s + ' / ' + @num_of_images_per_class.to_s
+    progress = index * @num_of_images_per_class + accept
+    total = @obj_lists.length * @num_of_images_per_class
+    @log.info('Progress: ' + progress.to_s + ' / ' + total.to_s)
   end
 end
