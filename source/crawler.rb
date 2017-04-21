@@ -6,7 +6,9 @@ require 'json'
 require 'logger'
 require 'open-uri'
 require 'pry'
+require 'whatlanguage'
 require 'yaml'
+
 
 class Crawler
   def initialize(num_of_images_per_class, min_desc_len, max_desc_len, min_tags_num)
@@ -21,6 +23,8 @@ class Crawler
     FileUtils.mkdir_p(LOG_DIR) unless FileTest.exist?(LOG_DIR)
     # hash for saving meta data
     @meta_info = {}
+    # language detector
+    @lang_detector = WhatLanguage.new(:all)
     # logger which writes log output to STDOUT as well as file
     @log = Logger.new("| tee -a #{LOG_FILE_PATH}")
     # progress
@@ -119,6 +123,10 @@ class Crawler
     end
     # Reject images with too few objects
     if tags.length < @min_tags_num
+      return false
+    end
+    # Reject images without English descriptions
+    if @lang_detector.language(desc) != :english
       return false
     end
     return true
