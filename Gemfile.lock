@@ -12,6 +12,7 @@ GEM
       pry (~> 0.9)
       yard (~> 0.9)
     slop (3.6.0)
+    whatlanguage (1.0.6)
     yard (0.9.8)
 
 PLATFORMS
@@ -21,6 +22,7 @@ DEPENDENCIES
   flickraw
   pry
   pry-doc
+  whatlanguage
 
 BUNDLED WITH
    1.14.6
