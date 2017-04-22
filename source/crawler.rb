@@ -28,8 +28,7 @@ class Crawler
     # logger which writes log output to STDOUT as well as file
     @log = Logger.new("| tee -a #{LOG_FILE_PATH}")
     # progress
-    @progress = 0
-    @total = @obj_lists.length * @num_of_images_per_class
+    @total = @meta_info.length
   end
 
   def run
@@ -51,13 +50,11 @@ class Crawler
         _accept, _last_update = inspect(images)
         if _last_update == last_update
           @log.info("There are no unsearched images about #{obj_list.join(', ')} anymore.")
-          @total -= (@num_of_images_per_class - accept)
           break
         else
-          @progress += _accept
           accept += _accept
           last_update = _last_update
-          report_progress
+          report_progress(index)
         end
       end
     end
@@ -183,7 +180,8 @@ class Crawler
     return obj_lists, obj_mask
   end
 
-  def report_progress
-    @log.info('Progress: ' + @progress.to_s + ' / ' + @total.to_s)
+  def report_progress(index)
+    @log.info('Query Progress: ' + index.to_s + '/' + @obj_lists.length.to_s)
+    @log.info('Number of saved images: ' + @meta_info.length.to_s)
   end
 end
