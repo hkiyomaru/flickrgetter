@@ -5,13 +5,19 @@ require 'flickraw'
 require 'json'
 require 'logger'
 require 'open-uri'
+require 'parallel'
 require 'pry'
 require 'whatlanguage'
 require 'yaml'
 
 
 class Crawler
-  def initialize(num_of_images_per_class, min_desc_len, max_desc_len, min_tags_num)
+  def initialize(
+      num_of_images_per_class,
+      min_desc_len,
+      max_desc_len,
+      min_tags_num,
+      num_core)
     @num_of_images_per_class = num_of_images_per_class
     @min_desc_len = min_desc_len
     @max_desc_len = max_desc_len
@@ -29,18 +35,37 @@ class Crawler
     @log = Logger.new("| tee -a #{LOG_FILE_PATH}")
     # progress
     @total = @meta_info.length
+    # parallel
+    @num_core = num_core
   end
 
   def run
-    @obj_lists.each_with_index do |obj_list, index|
+    # run subprocesses
+    sub_obj_list_size = @obj_lists.length / @num_core
+    @obj_lists = @obj_lists.each_slice(sub_obj_list_size).to_a
+    results = Parallel.map(@obj_lists, in_process: @num_core) do |sub_obj_lists|
+      run_subprocess(sub_obj_lists)
+    end
+    # merge results
+    results.each do |result|
+      @meta_info.update(result)
+    end
+    # save meta information
+    if done?
+      @log.info('Done.')
+    end
+  end
+
+  def run_subprocess(sub_obj_lists)
+    sub_obj_lists.each do |obj_list|
       accept = 0
       last_update = nil
       while accept < @num_of_images_per_class
         begin
           images = flickr.photos.search(
-                    :tags => obj_list,
-                    :max_upload_date => last_update,
-                    :per_page => 500,
+                     :tags => obj_list,
+                     :max_upload_date => last_update,
+                     :per_page => 500,
                    )
         rescue
           @log.error('Failed to open TCP connection to Flickr API.')
@@ -54,13 +79,11 @@ class Crawler
         else
           accept += _accept
           last_update = _last_update
-          report_progress(index)
+          report_progress
         end
       end
     end
-    if done?
-      @log.info('Done.')
-    end
+    return @meta_info
   end
 
   def inspect(images)
@@ -180,8 +203,7 @@ class Crawler
     return obj_lists, obj_mask
   end
 
-  def report_progress(index)
-    @log.info('Query Progress: ' + index.to_s + '/' + @obj_lists.length.to_s)
+  def report_progress
     @log.info('Number of saved images: ' + @meta_info.length.to_s)
   end
 end

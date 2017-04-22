@@ -9,10 +9,11 @@ LOG_DIR = '../log/'
 LOG_FILE_PATH = '../log/crawler.log'
 
 # Restrinctions for collecting Flickr images
-num_of_images_per_class = 500
+num_of_images_per_class = 300
 min_desc_len = 10
 max_desc_len = 140
 min_tags_num = 3
+num_core = 4
 
 # Flickr API Configuration
 CONFIG_PATH = '../config/secrets.yml'
@@ -21,4 +22,10 @@ FlickRaw.api_key = config_data['key']
 FlickRaw.shared_secret = config_data['secret']
 
 # Scrape Flickr images and their side information
-Crawler.new(num_of_images_per_class, min_desc_len, max_desc_len, min_tags_num).run
+Crawler.new(
+  num_of_images_per_class,
+  min_desc_len,
+  max_desc_len,
+  min_tags_num,
+  num_core
+).run
