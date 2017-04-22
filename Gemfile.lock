@@ -4,6 +4,7 @@ GEM
     coderay (1.1.1)
     flickraw (0.9.9)
     method_source (0.8.2)
+    parallel (1.11.1)
     pry (0.10.4)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
@@ -20,6 +21,7 @@ PLATFORMS
 
 DEPENDENCIES
   flickraw
+  parallel
   pry
   pry-doc
   whatlanguage
