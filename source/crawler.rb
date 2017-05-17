@@ -86,12 +86,10 @@ class Crawler
                 end
                 _accept, _last_update = inspect(images)
                 if _last_update == last_update
-                    @log.info("There are no unsearched images about #{obj_list.join(', ')} anymore.")
                     break
                 else
                     accept += _accept
                     last_update = _last_update
-                    report_progress
                 end
             end
         end
@@ -225,9 +223,5 @@ class Crawler
         obj_mask = obj_lists.flatten
 
         return obj_lists, obj_mask
-    end
-
-    def report_progress
-        @log.info('Number of saved images: ' + @meta_info.length.to_s)
     end
 end

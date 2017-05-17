@@ -23,7 +23,7 @@ LOG_FILE_PATH = '../log/crawler.log'
 min_desc_len = 10
 max_desc_len = 140
 min_tags_num = 3
-num_core = 4
+num_core = 10
 
 # Flickr API Configuration
 CONFIG_PATH = '../config/secrets.yml'
