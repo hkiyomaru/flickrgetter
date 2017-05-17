@@ -28,7 +28,7 @@ $ bundle install --path vendor/bundle
 
 ```
 $ cd source/
-$ bundle exec ruby scrape.rb
+$ bundle exec ruby scrape.rb -q <PATH TO QUERIES> -n <NUMBER OF IMAGES PER CLASS>
 ```
 
 Everything will be saved at `download` directory.
