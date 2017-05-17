@@ -135,7 +135,7 @@ class Crawler
                 if download_image?(url)
                     @meta_info.store(image_id, _meta_info)
                     accept += 1
-                    @log.info('Downloaded ' + url)
+                    @log.info(_meta_info.to_s)
                     break if accept == @num_of_images_per_class
                 end
             end
